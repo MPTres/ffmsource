@@ -24,9 +24,10 @@
  * VBLE Decoder
  */
 
+#define BITSTREAM_READER_LE
+
 #include "libavutil/imgutils.h"
 
-#define BITSTREAM_READER_LE
 #include "avcodec.h"
 #include "get_bits.h"
 #include "huffyuvdsp.h"

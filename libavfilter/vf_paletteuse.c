@@ -86,7 +86,6 @@ typedef struct PaletteUseContext {
     uint32_t palette[AVPALETTE_COUNT];
     int palette_loaded;
     int dither;
-    int new;
     set_frame_func set_frame;
     int bayer_scale;
     int ordered_dither[8*8];
@@ -123,7 +122,6 @@ static const AVOption paletteuse_options[] = {
         { "bruteforce",    "brute-force into the palette", 0, AV_OPT_TYPE_CONST, {.i64=COLOR_SEARCH_BRUTEFORCE},    INT_MIN, INT_MAX, FLAGS, "search" },
     { "mean_err", "compute and print mean error", OFFSET(calc_mean_err), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
     { "debug_accuracy", "test color search accuracy", OFFSET(debug_accuracy), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
-    { "new", "take new palette for each output frame", OFFSET(new), AV_OPT_TYPE_BOOL, {.i64=0}, 0, 1, FLAGS },
     { NULL }
 };
 
@@ -930,14 +928,6 @@ static void load_palette(PaletteUseContext *s, const AVFrame *palette_frame)
     const uint32_t *p = (const uint32_t *)palette_frame->data[0];
     const int p_linesize = palette_frame->linesize[0] >> 2;
 
-    if (s->new) {
-        memset(s->palette, 0, sizeof(s->palette));
-        memset(s->map, 0, sizeof(s->map));
-        for (i = 0; i < CACHE_SIZE; i++)
-            av_freep(&s->cache[i].entries);
-        memset(s->cache, 0, sizeof(s->cache));
-    }
-
     i = 0;
     for (y = 0; y < palette_frame->height; y++) {
         for (x = 0; x < palette_frame->width; x++)
@@ -947,8 +937,7 @@ static void load_palette(PaletteUseContext *s, const AVFrame *palette_frame)
 
     load_colormap(s);
 
-    if (!s->new)
-        s->palette_loaded = 1;
+    s->palette_loaded = 1;
 }
 
 static AVFrame *load_apply_palette(AVFilterContext *ctx, AVFrame *main,

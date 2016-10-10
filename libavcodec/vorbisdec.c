@@ -29,14 +29,14 @@
 #include <inttypes.h>
 #include <math.h>
 
-#include "libavutil/avassert.h"
-#include "libavutil/float_dsp.h"
-
 #define BITSTREAM_READER_LE
+#include "libavutil/float_dsp.h"
+#include "libavutil/avassert.h"
 #include "avcodec.h"
-#include "fft.h"
 #include "get_bits.h"
+#include "fft.h"
 #include "internal.h"
+
 #include "vorbis.h"
 #include "vorbisdsp.h"
 #include "xiph.h"

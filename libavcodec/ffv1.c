@@ -36,6 +36,7 @@
 #include "avcodec.h"
 #include "internal.h"
 #include "rangecoder.h"
+#include "golomb.h"
 #include "mathops.h"
 #include "ffv1.h"
 
@@ -144,11 +145,7 @@ av_cold int ff_ffv1_init_slice_contexts(FFV1Context *f)
 
         fs->sample_buffer = av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
                                       sizeof(*fs->sample_buffer));
-        fs->sample_buffer32 = av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
-                                        sizeof(*fs->sample_buffer32));
-        if (!fs->sample_buffer || !fs->sample_buffer32) {
-            av_freep(&fs->sample_buffer);
-            av_freep(&fs->sample_buffer32);
+        if (!fs->sample_buffer) {
             av_freep(&f->slice_context[i]);
             goto memfail;
         }
@@ -158,7 +155,6 @@ av_cold int ff_ffv1_init_slice_contexts(FFV1Context *f)
 memfail:
     while(--i >= 0) {
         av_freep(&f->slice_context[i]->sample_buffer);
-        av_freep(&f->slice_context[i]->sample_buffer32);
         av_freep(&f->slice_context[i]);
     }
     return AVERROR(ENOMEM);
@@ -229,7 +225,6 @@ av_cold int ff_ffv1_close(AVCodecContext *avctx)
             av_freep(&p->vlc_state);
         }
         av_freep(&fs->sample_buffer);
-        av_freep(&fs->sample_buffer32);
     }
 
     av_freep(&avctx->stats_out);

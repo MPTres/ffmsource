@@ -419,8 +419,6 @@ static int try_push_frame(AVFilterContext *ctx, int x)
                 }
 
                 ret = ff_filter_frame(outlink, out);
-                if (ret < 0)
-                    return ret;
             }
         }
     }

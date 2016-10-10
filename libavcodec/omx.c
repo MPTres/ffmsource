@@ -703,7 +703,7 @@ static av_cold int omx_encode_init(AVCodecContext *avctx)
                          nals[avctx->extradata[i + 4] & 0x1f]++;
                      }
                 }
-                if (nals[H264_NAL_SPS] && nals[H264_NAL_PPS])
+                if (nals[NAL_SPS] && nals[NAL_PPS])
                     break;
             } else {
                 if (avctx->extradata_size > 0)

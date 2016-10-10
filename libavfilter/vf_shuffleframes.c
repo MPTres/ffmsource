@@ -84,15 +84,14 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 {
     AVFilterContext    *ctx = inlink->dst;
     ShuffleFramesContext *s = ctx->priv;
-    int ret = 0;
+    int ret;
 
     if (s->in_frames < s->nb_frames) {
         s->frames[s->in_frames] = frame;
         s->pts[s->in_frames] = frame->pts;
         s->in_frames++;
-    }
-
-    if (s->in_frames == s->nb_frames) {
+        ret = 0;
+    } else if (s->in_frames == s->nb_frames) {
         int n, x;
 
         for (n = 0; n < s->nb_frames; n++) {
@@ -109,7 +108,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
         for (n = 0; n < s->nb_frames; n++)
             av_frame_free(&s->frames[n]);
-    }
+    } else
+        av_assert0(0);
 
     return ret;
 }
@@ -117,11 +117,6 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     ShuffleFramesContext *s = ctx->priv;
-
-    while (s->in_frames > 0) {
-        s->in_frames--;
-        av_frame_free(&s->frames[s->in_frames]);
-    }
 
     av_freep(&s->frames);
     av_freep(&s->map);

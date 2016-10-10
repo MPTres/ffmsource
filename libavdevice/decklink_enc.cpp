@@ -90,8 +90,8 @@ public:
 
 static int decklink_setup_video(AVFormatContext *avctx, AVStream *st)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
     AVCodecContext *c = st->codec;
 
     if (ctx->video) {
@@ -140,8 +140,8 @@ static int decklink_setup_video(AVFormatContext *avctx, AVStream *st)
 
 static int decklink_setup_audio(AVFormatContext *avctx, AVStream *st)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
     AVCodecContext *c = st->codec;
 
     if (ctx->audio) {
@@ -181,8 +181,8 @@ static int decklink_setup_audio(AVFormatContext *avctx, AVStream *st)
 
 av_cold int ff_decklink_write_trailer(AVFormatContext *avctx)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
 
     if (ctx->playback_started) {
         BMDTimeValue actual;
@@ -193,7 +193,10 @@ av_cold int ff_decklink_write_trailer(AVFormatContext *avctx)
             ctx->dlo->DisableAudioOutput();
     }
 
-    ff_decklink_cleanup(avctx);
+    if (ctx->dlo)
+        ctx->dlo->Release();
+    if (ctx->dl)
+        ctx->dl->Release();
 
     if (ctx->output_callback)
         delete ctx->output_callback;
@@ -207,8 +210,8 @@ av_cold int ff_decklink_write_trailer(AVFormatContext *avctx)
 
 static int decklink_write_video_packet(AVFormatContext *avctx, AVPacket *pkt)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
     AVPicture *avpicture = (AVPicture *) pkt->data;
     AVFrame *avframe, *tmp;
     decklink_frame *frame;
@@ -287,8 +290,8 @@ static int decklink_write_video_packet(AVFormatContext *avctx, AVPacket *pkt)
 
 static int decklink_write_audio_packet(AVFormatContext *avctx, AVPacket *pkt)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
     int sample_count = pkt->size / (ctx->channels << 1);
     buffercount_type buffered;
 
@@ -310,10 +313,12 @@ extern "C" {
 
 av_cold int ff_decklink_write_header(AVFormatContext *avctx)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
     struct decklink_ctx *ctx;
+    IDeckLinkDisplayModeIterator *itermode;
+    IDeckLinkIterator *iter;
+    IDeckLink *dl = NULL;
     unsigned int n;
-    int ret;
 
     ctx = (struct decklink_ctx *) av_mallocz(sizeof(struct decklink_ctx));
     if (!ctx)
@@ -323,33 +328,59 @@ av_cold int ff_decklink_write_header(AVFormatContext *avctx)
     ctx->preroll      = cctx->preroll;
     cctx->ctx = ctx;
 
+    iter = CreateDeckLinkIteratorInstance();
+    if (!iter) {
+        av_log(avctx, AV_LOG_ERROR, "Could not create DeckLink iterator\n");
+        return AVERROR(EIO);
+    }
+
     /* List available devices. */
     if (ctx->list_devices) {
         ff_decklink_list_devices(avctx);
         return AVERROR_EXIT;
     }
 
-    ret = ff_decklink_init_device(avctx, avctx->filename);
-    if (ret < 0)
-        return ret;
+    /* Open device. */
+    while (iter->Next(&dl) == S_OK) {
+        const char *displayName;
+        ff_decklink_get_display_name(dl, &displayName);
+        if (!strcmp(avctx->filename, displayName)) {
+            av_free((void *) displayName);
+            ctx->dl = dl;
+            break;
+        }
+        av_free((void *) displayName);
+        dl->Release();
+    }
+    iter->Release();
+    if (!ctx->dl) {
+        av_log(avctx, AV_LOG_ERROR, "Could not open '%s'\n", avctx->filename);
+        return AVERROR(EIO);
+    }
 
     /* Get output device. */
     if (ctx->dl->QueryInterface(IID_IDeckLinkOutput, (void **) &ctx->dlo) != S_OK) {
         av_log(avctx, AV_LOG_ERROR, "Could not open output device from '%s'\n",
                avctx->filename);
-        ret = AVERROR(EIO);
-        goto error;
+        ctx->dl->Release();
+        return AVERROR(EIO);
     }
 
     /* List supported formats. */
     if (ctx->list_formats) {
         ff_decklink_list_formats(avctx);
-        ret = AVERROR_EXIT;
-        goto error;
+        ctx->dlo->Release();
+        ctx->dl->Release();
+        return AVERROR_EXIT;
+    }
+
+    if (ctx->dlo->GetDisplayModeIterator(&itermode) != S_OK) {
+        av_log(avctx, AV_LOG_ERROR, "Could not get Display Mode Iterator\n");
+        ctx->dl->Release();
+        return AVERROR(EIO);
     }
 
     /* Setup streams. */
-    ret = AVERROR(EIO);
     for (n = 0; n < avctx->nb_streams; n++) {
         AVStream *st = avctx->streams[n];
         AVCodecContext *c = st->codec;
@@ -364,18 +395,22 @@ av_cold int ff_decklink_write_header(AVFormatContext *avctx)
             goto error;
         }
     }
+    itermode->Release();
 
     return 0;
 
 error:
-    ff_decklink_cleanup(avctx);
-    return ret;
+
+    ctx->dlo->Release();
+    ctx->dl->Release();
+
+    return AVERROR(EIO);
 }
 
 int ff_decklink_write_packet(AVFormatContext *avctx, AVPacket *pkt)
 {
-    struct decklink_cctx *cctx = (struct decklink_cctx *)avctx->priv_data;
-    struct decklink_ctx *ctx = (struct decklink_ctx *)cctx->ctx;
+    struct decklink_cctx *cctx = (struct decklink_cctx *) avctx->priv_data;
+    struct decklink_ctx *ctx = (struct decklink_ctx *) cctx->ctx;
     AVStream *st = avctx->streams[pkt->stream_index];
 
     ctx->last_pts = FFMAX(ctx->last_pts, pkt->pts);

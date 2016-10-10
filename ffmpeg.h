@@ -418,7 +418,6 @@ typedef struct OutputStream {
     int64_t last_mux_dts;
     AVBitStreamFilterContext *bitstream_filters;
     AVCodecContext *enc_ctx;
-    AVCodecParameters *ref_par; /* associated input codec parameters with encoders options applied */
     AVCodec *enc;
     int64_t max_frames;
     AVFrame *filtered_frame;
@@ -574,8 +573,7 @@ void choose_sample_fmt(AVStream *st, AVCodec *codec);
 int configure_filtergraph(FilterGraph *fg);
 int configure_output_filter(FilterGraph *fg, OutputFilter *ofilter, AVFilterInOut *out);
 int ist_in_filtergraph(FilterGraph *fg, InputStream *ist);
-int filtergraph_is_simple(FilterGraph *fg);
-int init_simple_filtergraph(InputStream *ist, OutputStream *ost);
+FilterGraph *init_simple_filtergraph(InputStream *ist, OutputStream *ost);
 int init_complex_filtergraph(FilterGraph *fg);
 
 int ffmpeg_parse_options(int argc, char **argv);

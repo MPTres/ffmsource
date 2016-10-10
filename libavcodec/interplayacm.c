@@ -19,9 +19,8 @@
  */
 
 #include "libavutil/intreadwrite.h"
-
-#define BITSTREAM_READER_LE
 #include "avcodec.h"
+#define BITSTREAM_READER_LE
 #include "get_bits.h"
 #include "internal.h"
 

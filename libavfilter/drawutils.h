@@ -55,7 +55,6 @@ typedef struct FFDrawContext {
     uint8_t vsub[MAX_PLANES];  /*< vertical subsampling */
     uint8_t hsub_max;
     uint8_t vsub_max;
-    unsigned flags;
 } FFDrawContext;
 
 typedef struct FFDrawColor {
@@ -68,16 +67,11 @@ typedef struct FFDrawColor {
 } FFDrawColor;
 
 /**
-  * Process alpha pixel component.
-  */
-#define FF_DRAW_PROCESS_ALPHA 1
-
-/**
  * Init a draw context.
  *
  * Only a limited number of pixel formats are supported, if format is not
  * supported the function will return an error.
- * flags is combination of FF_DRAW_* flags.
+ * No flags currently defined.
  * @return  0 for success, < 0 for error
  */
 int ff_draw_init(FFDrawContext *draw, enum AVPixelFormat format, unsigned flags);

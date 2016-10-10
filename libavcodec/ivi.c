@@ -28,11 +28,10 @@
 
 #include <inttypes.h>
 
+#define BITSTREAM_READER_LE
 #include "libavutil/attributes.h"
 #include "libavutil/imgutils.h"
 #include "libavutil/timer.h"
-
-#define BITSTREAM_READER_LE
 #include "avcodec.h"
 #include "get_bits.h"
 #include "internal.h"

@@ -24,10 +24,9 @@
  * Common code between the AC-3 encoder and decoder.
  */
 
-#include "libavutil/common.h"
-
 #include "avcodec.h"
 #include "ac3.h"
+#include "get_bits.h"
 
 /**
  * Starting frequency coefficient bin for each critical band.

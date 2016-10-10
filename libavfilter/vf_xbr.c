@@ -367,7 +367,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     td.in = in;
     td.out = out;
     td.rgbtoyuv = s->rgbtoyuv;
-    ctx->internal->execute(ctx, s->func, &td, NULL, FFMIN(inlink->h, ff_filter_get_nb_threads(ctx)));
+    ctx->internal->execute(ctx, s->func, &td, NULL, FFMIN(inlink->h, ctx->graph->nb_threads));
 
     out->width  = outlink->w;
     out->height = outlink->h;

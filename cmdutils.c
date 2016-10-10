@@ -61,7 +61,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
-#ifdef _WIN32
+#if HAVE_SETDLLDIRECTORY
 #include <windows.h>
 #endif
 
@@ -112,7 +112,7 @@ static void log_callback_report(void *ptr, int level, const char *fmt, va_list v
 
 void init_dynload(void)
 {
-#ifdef _WIN32
+#if HAVE_SETDLLDIRECTORY
     /* Calling SetDllDirectory with the empty string (but not NULL) removes the
      * current working directory from the DLL search path as a security pre-caution. */
     SetDllDirectory("");
@@ -1993,7 +1993,7 @@ AVDictionary *filter_codec_opts(AVDictionary *opts, enum AVCodecID codec_id,
         codec            = s->oformat ? avcodec_find_encoder(codec_id)
                                       : avcodec_find_decoder(codec_id);
 
-    switch (st->codecpar->codec_type) {
+    switch (st->codec->codec_type) {
     case AVMEDIA_TYPE_VIDEO:
         prefix  = 'v';
         flags  |= AV_OPT_FLAG_VIDEO_PARAM;
@@ -2051,7 +2051,7 @@ AVDictionary **setup_find_stream_info_opts(AVFormatContext *s,
         return NULL;
     }
     for (i = 0; i < s->nb_streams; i++)
-        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codecpar->codec_id,
+        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codec->codec_id,
                                     s, s->streams[i], NULL);
     return opts;
 }

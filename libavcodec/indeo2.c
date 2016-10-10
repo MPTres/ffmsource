@@ -24,9 +24,8 @@
  * Intel Indeo 2 decoder.
  */
 
-#include "libavutil/attributes.h"
-
 #define BITSTREAM_READER_LE
+#include "libavutil/attributes.h"
 #include "avcodec.h"
 #include "get_bits.h"
 #include "indeo2data.h"

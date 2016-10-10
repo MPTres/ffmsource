@@ -35,7 +35,6 @@
 #include "libavcodec/dv_profile.h"
 #include "libavcodec/dv.h"
 #include "dv.h"
-#include "libavutil/avassert.h"
 #include "libavutil/fifo.h"
 #include "libavutil/mathematics.h"
 #include "libavutil/intreadwrite.h"

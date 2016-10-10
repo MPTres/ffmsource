@@ -29,7 +29,7 @@
 #include "vda_vt_internal.h"
 #include "libavutil/avutil.h"
 #include "bytestream.h"
-#include "h264dec.h"
+#include "h264.h"
 #include "mpegvideo.h"
 
 #ifndef kVTVideoDecoderSpecification_RequireHardwareAcceleratedVideoDecoder

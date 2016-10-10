@@ -24,9 +24,8 @@
  * TAK parser
  **/
 
-#define BITSTREAM_READER_LE
-#include "parser.h"
 #include "tak.h"
+#include "parser.h"
 
 typedef struct TAKParseContext {
     ParseContext  pc;

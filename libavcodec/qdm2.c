@@ -35,15 +35,14 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "libavutil/channel_layout.h"
-
 #define BITSTREAM_READER_LE
+#include "libavutil/channel_layout.h"
 #include "avcodec.h"
 #include "get_bits.h"
 #include "internal.h"
-#include "mpegaudio.h"
-#include "mpegaudiodsp.h"
 #include "rdft.h"
+#include "mpegaudiodsp.h"
+#include "mpegaudio.h"
 
 #include "qdm2_tablegen.h"
 

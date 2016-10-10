@@ -37,6 +37,7 @@
 #include "h263data.h"
 #include "mathops.h"
 #include "mpegutils.h"
+#include "unary.h"
 #include "flv.h"
 #include "mpeg4video.h"
 #include "internal.h"

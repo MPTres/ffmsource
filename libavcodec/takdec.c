@@ -27,15 +27,13 @@
 
 #include "libavutil/internal.h"
 #include "libavutil/samplefmt.h"
-
-#define BITSTREAM_READER_LE
+#include "tak.h"
+#include "takdsp.h"
 #include "audiodsp.h"
 #include "thread.h"
 #include "avcodec.h"
 #include "internal.h"
 #include "unary.h"
-#include "tak.h"
-#include "takdsp.h"
 
 #define MAX_SUBFRAMES     8                         ///< max number of subframes per channel
 #define MAX_PREDICTORS  256

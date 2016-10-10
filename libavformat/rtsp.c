@@ -834,8 +834,7 @@ int ff_rtsp_open_transport_ctx(AVFormatContext *s, RTSPStream *rtsp_st)
 
     if (!rtsp_st->transport_priv) {
          return AVERROR(ENOMEM);
-    } else if (CONFIG_RTPDEC && rt->transport == RTSP_TRANSPORT_RTP &&
-               s->iformat) {
+    } else if (CONFIG_RTPDEC && rt->transport == RTSP_TRANSPORT_RTP) {
         RTPDemuxContext *rtpctx = rtsp_st->transport_priv;
         rtpctx->ssrc = rtsp_st->ssrc;
         if (rtsp_st->dynamic_handler) {
@@ -1752,14 +1751,6 @@ redirect:
                  "Cache-Control: no-cache\r\n",
                  sessioncookie);
         av_opt_set(rt->rtsp_hd->priv_data, "headers", headers, 0);
-
-        if (!rt->rtsp_hd->protocol_whitelist && s->protocol_whitelist) {
-            rt->rtsp_hd->protocol_whitelist = av_strdup(s->protocol_whitelist);
-            if (!rt->rtsp_hd->protocol_whitelist) {
-                err = AVERROR(ENOMEM);
-                goto fail;
-            }
-        }
 
         /* complete the connection */
         if (ffurl_connect(rt->rtsp_hd, NULL)) {

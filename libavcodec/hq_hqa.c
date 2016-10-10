@@ -25,7 +25,6 @@
 
 #include "avcodec.h"
 #include "canopus.h"
-#include "get_bits.h"
 #include "internal.h"
 
 #include "hq_hqa.h"

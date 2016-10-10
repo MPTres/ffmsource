@@ -25,18 +25,17 @@
  * G.723.1 compatible decoder
  */
 
+#define BITSTREAM_READER_LE
 #include "libavutil/channel_layout.h"
 #include "libavutil/mem.h"
 #include "libavutil/opt.h"
-
-#define BITSTREAM_READER_LE
-#include "acelp_vectors.h"
 #include "avcodec.h"
+#include "get_bits.h"
+#include "acelp_vectors.h"
 #include "celp_filters.h"
 #include "celp_math.h"
-#include "get_bits.h"
-#include "internal.h"
 #include "g723_1.h"
+#include "internal.h"
 
 #define CNG_RANDOM_SEED 12345
 

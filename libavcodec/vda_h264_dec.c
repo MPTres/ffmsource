@@ -28,7 +28,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 #include "vda.h"
-#include "h264dec.h"
+#include "h264.h"
 #include "avcodec.h"
 
 #ifndef kCFCoreFoundationVersionNumber10_7

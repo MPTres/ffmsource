@@ -267,7 +267,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     td.in = in; td.out = out;
     ctx->internal->execute(ctx, s->deband, &td, NULL, FFMIN3(s->planeheight[1],
                                                              s->planeheight[2],
-                                                             ff_filter_get_nb_threads(ctx)));
+                                                             ctx->graph->nb_threads));
 
     av_frame_free(&in);
     return ff_filter_frame(outlink, out);

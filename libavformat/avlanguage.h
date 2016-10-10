@@ -21,9 +21,6 @@
 #ifndef AVFORMAT_AVLANGUAGE_H
 #define AVFORMAT_AVLANGUAGE_H
 
-#include "libavutil/attributes.h"
-#include "libavformat/version.h"
-
 /**
  * Known language codespaces
  */
@@ -37,10 +34,6 @@ enum AVLangCodespace {
  * Convert a language code to a target codespace. The source codespace is guessed.
  * @return NULL if the provided lang is null or invalid.
  */
-const char *ff_convert_lang_to(const char *lang, enum AVLangCodespace target_codespace);
-#if LIBAVFORMAT_VERSION_MAJOR < 58
-attribute_deprecated
 const char *av_convert_lang_to(const char *lang, enum AVLangCodespace target_codespace);
-#endif
 
 #endif /* AVFORMAT_AVLANGUAGE_H */

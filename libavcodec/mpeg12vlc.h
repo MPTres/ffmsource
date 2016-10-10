@@ -28,7 +28,7 @@
 #ifndef AVCODEC_MPEG12VLC_H
 #define AVCODEC_MPEG12VLC_H
 
-#include "vlc.h"
+#include "get_bits.h"
 
 #define DC_VLC_BITS 9
 #define MV_VLC_BITS 9
